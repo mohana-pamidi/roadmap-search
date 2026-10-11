@@ -1,20 +1,20 @@
 # Creates the grpah interface, basicalyl takes in data and then builds a grph from the RRT candiadte trajecotries 
 
-
 from dataclasses import dataclass, field
 from typing import Dict, List, Tuple, Optional
 import heapq
 import math
 
 
-class Roadmap: 
-    nodes: Dict[str, Tuple[float, float]] = field(default_facotry=dict)
-    nodes: Dict[Tuple[str, str], float] = field(default_facotry=dict)
+@dataclass
+class Roadmap:
+    nodes: Dict[str, Tuple[float, float]] = field(default_factory=dict)
+    edges: Dict[Tuple[str, str], float] = field(default_factory=dict)
 
-    def add_node(self, name: str, x: float, y: float):
+    def add_node(self, name: str, x: float, y: float) -> None:
         self.nodes[name] = (x, y)
 
-    def add_edge(self, u: str, v: str, cost: Optional[float] = None):
+    def add_edge(self, u: str, v: str, cost: Optional[float] = None) -> None:
         if cost is None:
             (x1, y1), (x2, y2) = self.nodes[u], self.nodes[v]
             cost = math.hypot(x2 - x1, y2 - y1)
@@ -30,7 +30,6 @@ class Roadmap:
         return sum(self.edges[(path[i], path[i + 1])] for i in range(len(path) - 1))
 
     def path_edges(self, path: List[str]) -> set:
-        """Undirected edge set (frozensets), used for diversity/overlap checks."""
         return {frozenset((path[i], path[i + 1])) for i in range(len(path) - 1)}
 
 
@@ -41,8 +40,6 @@ def dijkstra(
     removed_nodes: set = frozenset(),
     removed_edges: set = frozenset(),
 ) -> Optional[Tuple[List[str], float]]:
-    """Standard Dijkstra shortest path, with optional node/edge exclusions
-    (used by search.py's Yen's-algorithm-style spur search)."""
     dist = {start: 0.0}
     prev = {}
     visited = set()
@@ -76,5 +73,3 @@ def dijkstra(
         path.append(prev[path[-1]])
     path.reverse()
     return path, dist[goal]
-
-
